@@ -117,3 +117,12 @@ Usage :
 	cdr read [--config <value>] [--filter <value>] [--from <value>] [--to <value>] [--date <value>]
 ```
 
+#### cdr server
+
+```
+parsearger web server:
+	--port <port>: tcp port [default: ' 42069 ']
+	--response-file <response-file>: which file to use for the response FIFO, mktemp if empty
+Usage :
+	cdr server [--port <value>] [--response-file <value>]
+```
