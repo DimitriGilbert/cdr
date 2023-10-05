@@ -12,8 +12,6 @@ Usage :
 ## cdr record
 
 ```
-cdr sub command help
-	
 cdr record command:
 	what: what to record (eg: pain, nausea,med intakes ...)
 	-l, --loc|--localisation|--localization|--location|--where <loc>: where is it ?, repeatable
@@ -28,8 +26,6 @@ Usage :
 ## cdr init
 
 ```
-cdr sub command help
-	
 Init CDR:
 	--config <config>: parent config folder, user .config by default
 Usage :
@@ -39,8 +35,6 @@ Usage :
 ## cdr new-day
 
 ```
-cdr sub command help
-	
 Create a new day record file:
 	--config <config>: parent config folder, user .config by default
 	--context <context>: more information on the day
@@ -51,8 +45,6 @@ Usage :
 ## cdr archive
 
 ```
-cdr sub command help
-	
 Archive:
 	--config <config>: parent config folder, user .config by default
 	--path <path>: output path
@@ -66,8 +58,6 @@ Usage :
 ## cdr read
 
 ```
-cdr sub command help
-	
 read last file to stdout:
 	--config <config>: parent config folder, user .config by default
 	-f, --filter <filter>: yq expression to filter data, repeatable
@@ -76,4 +66,14 @@ read last file to stdout:
 	--date <date>: read a specific date
 Usage :
 	cdr read [--config <value>] [--filter <value>] [--from <value>] [--to <value>] [--date <value>]
+```
+
+## cdr server
+
+```
+parsearger web server:
+	--port <port>: tcp port [default: ' 42069 ']
+	--response-file <response-file>: which file to use for the response FIFO, mktemp if empty
+Usage :
+	cdr server [--port <value>] [--response-file <value>]
 ```

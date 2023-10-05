@@ -47,7 +47,3 @@ cdr read:
 cdr server:
 - --port
 - --response-file
-- --index-file
-- --form-file
-- --form-url
-- --submit-url

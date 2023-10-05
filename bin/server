@@ -5,10 +5,6 @@
 # @parseArger-declarations
 # @parseArger opt port "tcp port" --default-value "42069"
 # @parseArger opt response-file "which file to use for the response FIFO, mktemp if empty"
-# @parseArger opt index-file "index file" --default-value "index.html"
-# @parseArger opt form-file "html form file" --default-value "form.html"
-# @parseArger opt form-url "url to view form" --default-value "form"
-# @parseArger opt submit-url "form submit url" --default-value "form"
 # @parseArger-declarations-end
 
 # @parseArger-utils

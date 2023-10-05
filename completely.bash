@@ -41,7 +41,7 @@ _cdr_completions() {
       ;;
 
     'server'*)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_cdr_completions_filter "--port --response-file --index-file --form-file --form-url --submit-url")" -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_cdr_completions_filter "--port --response-file")" -- "$cur" )
       ;;
 
     'init'*)
