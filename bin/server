@@ -387,7 +387,21 @@ function handle_request () {
 	IFS='&' read -r -a tqsas <<< "${tqsas[1]}"
 	for i in "${tqsas[@]}"; do
 		IFS='=' read -r -a query_string_arg <<< "$i"
-		query_args[${query_string_arg[0]}]="${query_string_arg[1]}"
+			# __existing="${query_args[${query_string_arg[0]}]}";
+			# log "existing: $__existing __ $(declare -p $__existing | grep ' -a ')" 0;
+			# if [ "$(declare -p __existing | grep ' -a ')" != "" ]; then
+			# 	query_args[${query_string_arg[0]}]=( "${query_args[${query_string_arg[0]}]}" )
+			# fi
+			# query_args[${query_string_arg[0]}]+=("${query_string_arg[1]}")
+			
+		__argname="${query_string_arg[0]}";
+		__argvalue="${query_string_arg[1]}";
+		__existing="${query_args["$__argname"]}";
+		if [ "$__existing" != "" ]; then
+			query_args["$__argname"]+=" :: $__argvalue"
+		else
+			query_args["$__argname"]="$__argvalue"
+		fi
 	done
 
 	if [ "$request" != "" ]; then
@@ -409,7 +423,14 @@ function handle_request () {
 						;;
 					esac
 					for i in "${!query_args[@]}"; do
-						apiCmd+=( "--$(printf '%b' "${i//%/\\x}")" "$(printf '%b' "${query_args[$i]//%/\\x}")" );
+						IFS=" :: " read -r -a tmpi <<< "${query_args[$i]}";
+						if [ "${#tmpi[@]}" -gt 1 ]; then
+							for _ti in "${tmpi[@]}"; do
+								[ "$_ti" != "" ] && apiCmd+=( "--$(printf '%b' "${i//%/\\x}")" "$(printf '%b' "${_ti//%/\\x}")" );
+							done
+						else
+							apiCmd+=( "--$(printf '%b' "${i//%/\\x}")" "$(printf '%b' "${query_args[$i]//%/\\x}")" );
+						fi
 					done
 					
 					log "${apiCmd[*]}" -1;
@@ -447,7 +468,7 @@ fi
 log "Creating response file: $_arg_response_file" 1;
 mkfifo "$_arg_response_file";
 
-log "Listening on port: $_arg_port" 0;
+log "Listening on : http://localhost:$_arg_port" 0;
 while true; do
 	cat "$_arg_response_file" | nc -l "$_arg_port" | handle_request;
 done

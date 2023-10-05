@@ -32,16 +32,28 @@ _cdr_completions() {
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_cdr_completions_filter "--config --context")" -- "$cur" )
       ;;
 
+    'archive'*)
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_cdr_completions_filter "--config --path --file --directory --no-directory --override --no-override")" -- "$cur" )
+      ;;
+
     'record'*)
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_cdr_completions_filter "--loc --localisation --localization --location --where -l --intensity --level -i --more-context --info --information --description -c --date --when -d --config")" -- "$cur" )
+      ;;
+
+    'server'*)
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_cdr_completions_filter "--port --response-file --index-file --form-file --form-url --submit-url")" -- "$cur" )
       ;;
 
     'init'*)
       while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_cdr_completions_filter "--config")" -- "$cur" )
       ;;
 
+    'read'*)
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_cdr_completions_filter "--config --filter -f --from --to --date")" -- "$cur" )
+      ;;
+
     *)
-      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_cdr_completions_filter "record init new-day")" -- "$cur" )
+      while read -r; do COMPREPLY+=( "$REPLY" ); done < <( compgen -W "$(_cdr_completions_filter "record init new-day archive read server")" -- "$cur" )
       ;;
 
   esac

@@ -149,4 +149,600 @@ document.getElementById('cdr').addEventListener('submit', function(e) {
 						});
 				}
 			});
+</script><form id="cdr">
+<h2>./cdr form</h2>
+<div class="form-group">
+	<label for="target" class="form-label">target</label>
+	<span class="input-help">cdr subcommand</span>
+	<select pa-type="pos" name="target" id="target" required class="form-select">
+
+		<option value="record">record</option>
+		<option value="init">init</option>
+		<option value="new-day">new-day</option>
+		<option value="archive">archive</option>
+		<option value="read">read</option>
+		<option value="server">server</option>
+	</select>
+</div><button id="cdr_parse_btn">Parse</button>
+	<pre id="cdr_result" contenteditable=true ></pre>
+	<pre id="cdr_server_response"></pre>
+</form><div id="_subcommands">
+	<h3>Subcommand forms</h3>
+<div class="d-none subcmd-container-target" id="target_record_container"><form id="bin_record">
+<h2>record form</h2>
+<div class="form-group">
+	<label for="what" class="form-label">what</label>
+	<span class="input-help">what to record (eg: pain, nausea,med intakes ...)</span>
+	<input pa-type="pos" name="what" id="what" required type="text" class="form-control" />
+</div><div class="form-group">
+	<label for="loc" class="form-label">loc</label>
+	<span class="input-help">where is it ?</span>
+	<textarea pa-type="opt" name="loc" id="loc" type="text" pa-repeat class="form-control"></textarea>
+</div><div class="form-group">
+	<label for="intensity" class="form-label">intensity</label>
+	<span class="input-help">record intensity/level from 1 to 10</span>
+	<input class="form-control" pa-type="opt" name="intensity" id="intensity" type="text" />
+</div><div class="form-group">
+	<label for="more-context" class="form-label">more-context</label>
+	<span class="input-help">more information</span>
+	<input class="form-control" pa-type="opt" name="more-context" id="more-context" type="text" />
+</div><div class="form-group">
+	<label for="date" class="form-label">date</label>
+	<span class="input-help">when did it happen ?</span>
+	<input class="form-control" pa-type="opt" name="date" id="date" type="text" />
+</div><div class="form-group">
+	<label for="config" class="form-label">config</label>
+	<span class="input-help">parent config folder, user .config by default</span>
+	<input class="form-control" pa-type="opt" name="config" id="config" type="text" />
+</div><button id="bin_record_parse_btn">Parse</button>
+	<pre id="bin_record_result" contenteditable=true ></pre>
+	<pre id="bin_record_server_response"></pre>
+</form>
+<script type="text/javascript">
+	function bin_record_parse(__form) { 
+		let bin_record_frm = new FormData(__form);
+		let out = '';
+		for(const inp of bin_record_frm.keys()) {
+			const ielt = document.getElementById(inp);
+			switch(ielt.getAttribute('pa-type')) {
+				case 'pos':
+					if (/[\s!@#$%^&*()_+=[\]{};':"\|,.<>/?]/.test(bin_record_frm.get(inp))) {
+						out+=' "'+bin_record_frm.get(inp)+'"';
+					} else {
+						out+=' '+bin_record_frm.get(inp);
+					}
+					break;
+				case 'opt':
+					if(bin_record_frm.get(inp) !== '') {
+						if (ielt.hasAttribute('pa-repeat')) {
+							for(const val of bin_record_frm.get(inp).split(`
+`)) {
+								out+=' --'+inp+' "'+val+'"';
+							}
+						} else {
+							out+=' --'+inp+' "'+bin_record_frm.get(inp)+'"';
+						}
+					}
+					break;
+				case 'flag':
+					if(ielt.checked === true) {
+						out+=' --'+inp;
+					} else {
+						out+=' --no-'+inp;
+					}
+					break;
+			}
+		}
+		// document.getElementById('cdr_parse_btn').parentNode.dispatchEvent(new Event('submit'));
+		document.getElementById('cdr_parse_btn').click();
+		out=document.getElementById('cdr_result').innerHTML+out;
+		document.getElementById('cdr_result').innerHTML=out;
+		
+		document.getElementById('bin_record_result').innerHTML=out;
+	}
+document.getElementById('bin_record').addEventListener('submit', function(e) {
+				e.preventDefault();
+				e.target.checkValidity();
+				bin_record_parse(e.target);
+				if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+					&& (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+					&& (window.location.port !== '80' && window.location.port !== '443')) {
+					fetch(window.location.protocol+'//' + window.location.hostname + ':' + window.location.port + '/form', {
+						method: 'POST',
+						body:document.getElementById('cdr_result').innerHTML.replace(/record /g, '')
+					})
+						.then(response => response.text())
+						.then(result => {
+							document.getElementById('bin_record_server_response').innerHTML = result;
+						})
+						.catch(error => {
+							document.getElementById('bin_record_server_response').innerHTML = error;
+						});
+				}
+			});
+</script></div><div class="d-none subcmd-container-target" id="target_init_container"><form id="bin_init">
+<h2>init form</h2>
+<div class="form-group">
+	<label for="config" class="form-label">config</label>
+	<span class="input-help">parent config folder, user .config by default</span>
+	<input class="form-control" pa-type="opt" name="config" id="config" type="text" />
+</div><button id="bin_init_parse_btn">Parse</button>
+	<pre id="bin_init_result" contenteditable=true ></pre>
+	<pre id="bin_init_server_response"></pre>
+</form>
+<script type="text/javascript">
+	function bin_init_parse(__form) { 
+		let bin_init_frm = new FormData(__form);
+		let out = '';
+		for(const inp of bin_init_frm.keys()) {
+			const ielt = document.getElementById(inp);
+			switch(ielt.getAttribute('pa-type')) {
+				case 'pos':
+					if (/[\s!@#$%^&*()_+=[\]{};':"\|,.<>/?]/.test(bin_init_frm.get(inp))) {
+						out+=' "'+bin_init_frm.get(inp)+'"';
+					} else {
+						out+=' '+bin_init_frm.get(inp);
+					}
+					break;
+				case 'opt':
+					if(bin_init_frm.get(inp) !== '') {
+						if (ielt.hasAttribute('pa-repeat')) {
+							for(const val of bin_init_frm.get(inp).split(`
+`)) {
+								out+=' --'+inp+' "'+val+'"';
+							}
+						} else {
+							out+=' --'+inp+' "'+bin_init_frm.get(inp)+'"';
+						}
+					}
+					break;
+				case 'flag':
+					if(ielt.checked === true) {
+						out+=' --'+inp;
+					} else {
+						out+=' --no-'+inp;
+					}
+					break;
+			}
+		}
+		// document.getElementById('cdr_parse_btn').parentNode.dispatchEvent(new Event('submit'));
+		document.getElementById('cdr_parse_btn').click();
+		out=document.getElementById('cdr_result').innerHTML+out;
+		document.getElementById('cdr_result').innerHTML=out;
+		
+		document.getElementById('bin_init_result').innerHTML=out;
+	}
+document.getElementById('bin_init').addEventListener('submit', function(e) {
+				e.preventDefault();
+				e.target.checkValidity();
+				bin_init_parse(e.target);
+				if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+					&& (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+					&& (window.location.port !== '80' && window.location.port !== '443')) {
+					fetch(window.location.protocol+'//' + window.location.hostname + ':' + window.location.port + '/form', {
+						method: 'POST',
+						body:document.getElementById('cdr_result').innerHTML.replace(/init /g, '')
+					})
+						.then(response => response.text())
+						.then(result => {
+							document.getElementById('bin_init_server_response').innerHTML = result;
+						})
+						.catch(error => {
+							document.getElementById('bin_init_server_response').innerHTML = error;
+						});
+				}
+			});
+</script></div><div class="d-none subcmd-container-target" id="target_new-day_container"><form id="bin_new_day">
+<h2>new-day form</h2>
+<div class="form-group">
+	<label for="config" class="form-label">config</label>
+	<span class="input-help">parent config folder, user .config by default</span>
+	<input class="form-control" pa-type="opt" name="config" id="config" type="text" />
+</div><div class="form-group">
+	<label for="context" class="form-label">context</label>
+	<span class="input-help">more information on the day</span>
+	<input class="form-control" pa-type="opt" name="context" id="context" type="text" />
+</div><button id="bin_new_day_parse_btn">Parse</button>
+	<pre id="bin_new_day_result" contenteditable=true ></pre>
+	<pre id="bin_new_day_server_response"></pre>
+</form>
+<script type="text/javascript">
+	function bin_new_day_parse(__form) { 
+		let bin_new_day_frm = new FormData(__form);
+		let out = '';
+		for(const inp of bin_new_day_frm.keys()) {
+			const ielt = document.getElementById(inp);
+			switch(ielt.getAttribute('pa-type')) {
+				case 'pos':
+					if (/[\s!@#$%^&*()_+=[\]{};':"\|,.<>/?]/.test(bin_new_day_frm.get(inp))) {
+						out+=' "'+bin_new_day_frm.get(inp)+'"';
+					} else {
+						out+=' '+bin_new_day_frm.get(inp);
+					}
+					break;
+				case 'opt':
+					if(bin_new_day_frm.get(inp) !== '') {
+						if (ielt.hasAttribute('pa-repeat')) {
+							for(const val of bin_new_day_frm.get(inp).split(`
+`)) {
+								out+=' --'+inp+' "'+val+'"';
+							}
+						} else {
+							out+=' --'+inp+' "'+bin_new_day_frm.get(inp)+'"';
+						}
+					}
+					break;
+				case 'flag':
+					if(ielt.checked === true) {
+						out+=' --'+inp;
+					} else {
+						out+=' --no-'+inp;
+					}
+					break;
+			}
+		}
+		// document.getElementById('cdr_parse_btn').parentNode.dispatchEvent(new Event('submit'));
+		document.getElementById('cdr_parse_btn').click();
+		out=document.getElementById('cdr_result').innerHTML+out;
+		document.getElementById('cdr_result').innerHTML=out;
+		
+		document.getElementById('bin_new_day_result').innerHTML=out;
+	}
+document.getElementById('bin_new_day').addEventListener('submit', function(e) {
+				e.preventDefault();
+				e.target.checkValidity();
+				bin_new_day_parse(e.target);
+				if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+					&& (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+					&& (window.location.port !== '80' && window.location.port !== '443')) {
+					fetch(window.location.protocol+'//' + window.location.hostname + ':' + window.location.port + '/form', {
+						method: 'POST',
+						body:document.getElementById('cdr_result').innerHTML.replace(/new-day /g, '')
+					})
+						.then(response => response.text())
+						.then(result => {
+							document.getElementById('bin_new_day_server_response').innerHTML = result;
+						})
+						.catch(error => {
+							document.getElementById('bin_new_day_server_response').innerHTML = error;
+						});
+				}
+			});
+</script></div><div class="d-none subcmd-container-target" id="target_archive_container"><form id="bin_archive">
+<h2>archive form</h2>
+<div class="form-group">
+	<label for="config" class="form-label">config</label>
+	<span class="input-help">parent config folder, user .config by default</span>
+	<input class="form-control" pa-type="opt" name="config" id="config" type="text" />
+</div><div class="form-group">
+	<label for="path" class="form-label">path</label>
+	<span class="input-help">output path</span>
+	<input class="form-control" pa-type="opt" name="path" id="path" type="text" />
+</div><div class="form-group">
+	<label for="file" class="form-label">file</label>
+	<span class="input-help">file to add</span>
+	<textarea pa-type="opt" name="file" id="file" type="text" pa-repeat class="form-control"></textarea>
+</div><div class="form-check">
+	<label for="directory" class="form-check-label">directory</label>
+	<i class="input-help">add whole record directory</i>
+	<input class="form-check-input" type="checkbox" role="switch" name="directory" id="directory" value="directory" pa-type="flag" />
+</div><div class="form-check">
+	<label for="override" class="form-check-label">override</label>
+	<i class="input-help">override file if it exists</i>
+	<input class="form-check-input" type="checkbox" role="switch" name="override" id="override" value="override" pa-type="flag" />
+</div><button id="bin_archive_parse_btn">Parse</button>
+	<pre id="bin_archive_result" contenteditable=true ></pre>
+	<pre id="bin_archive_server_response"></pre>
+</form>
+<script type="text/javascript">
+	function bin_archive_parse(__form) { 
+		let bin_archive_frm = new FormData(__form);
+		let out = '';
+		for(const inp of bin_archive_frm.keys()) {
+			const ielt = document.getElementById(inp);
+			switch(ielt.getAttribute('pa-type')) {
+				case 'pos':
+					if (/[\s!@#$%^&*()_+=[\]{};':"\|,.<>/?]/.test(bin_archive_frm.get(inp))) {
+						out+=' "'+bin_archive_frm.get(inp)+'"';
+					} else {
+						out+=' '+bin_archive_frm.get(inp);
+					}
+					break;
+				case 'opt':
+					if(bin_archive_frm.get(inp) !== '') {
+						if (ielt.hasAttribute('pa-repeat')) {
+							for(const val of bin_archive_frm.get(inp).split(`
+`)) {
+								out+=' --'+inp+' "'+val+'"';
+							}
+						} else {
+							out+=' --'+inp+' "'+bin_archive_frm.get(inp)+'"';
+						}
+					}
+					break;
+				case 'flag':
+					if(ielt.checked === true) {
+						out+=' --'+inp;
+					} else {
+						out+=' --no-'+inp;
+					}
+					break;
+			}
+		}
+		// document.getElementById('cdr_parse_btn').parentNode.dispatchEvent(new Event('submit'));
+		document.getElementById('cdr_parse_btn').click();
+		out=document.getElementById('cdr_result').innerHTML+out;
+		document.getElementById('cdr_result').innerHTML=out;
+		
+		document.getElementById('bin_archive_result').innerHTML=out;
+	}
+document.getElementById('bin_archive').addEventListener('submit', function(e) {
+				e.preventDefault();
+				e.target.checkValidity();
+				bin_archive_parse(e.target);
+				if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+					&& (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+					&& (window.location.port !== '80' && window.location.port !== '443')) {
+					fetch(window.location.protocol+'//' + window.location.hostname + ':' + window.location.port + '/form', {
+						method: 'POST',
+						body:document.getElementById('cdr_result').innerHTML.replace(/archive /g, '')
+					})
+						.then(response => response.text())
+						.then(result => {
+							document.getElementById('bin_archive_server_response').innerHTML = result;
+						})
+						.catch(error => {
+							document.getElementById('bin_archive_server_response').innerHTML = error;
+						});
+				}
+			});
+</script></div><div class="d-none subcmd-container-target" id="target_read_container"><form id="bin_read">
+<h2>read form</h2>
+<div class="form-group">
+	<label for="config" class="form-label">config</label>
+	<span class="input-help">parent config folder, user .config by default</span>
+	<input class="form-control" pa-type="opt" name="config" id="config" type="text" />
+</div><div class="form-group">
+	<label for="filter" class="form-label">filter</label>
+	<span class="input-help">yq expression to filter data</span>
+	<textarea pa-type="opt" name="filter" id="filter" type="text" pa-repeat class="form-control"></textarea>
+</div><div class="form-group">
+	<label for="from" class="form-label">from</label>
+	<span class="input-help">date from which to start</span>
+	<input class="form-control" pa-type="opt" name="from" id="from" type="text" />
+</div><div class="form-group">
+	<label for="to" class="form-label">to</label>
+	<span class="input-help">date to go to, last by default</span>
+	<input class="form-control" pa-type="opt" name="to" id="to" type="text" />
+</div><div class="form-group">
+	<label for="date" class="form-label">date</label>
+	<span class="input-help">read a specific date</span>
+	<input class="form-control" pa-type="opt" name="date" id="date" type="text" />
+</div><button id="bin_read_parse_btn">Parse</button>
+	<pre id="bin_read_result" contenteditable=true ></pre>
+	<pre id="bin_read_server_response"></pre>
+</form>
+<script type="text/javascript">
+	function bin_read_parse(__form) { 
+		let bin_read_frm = new FormData(__form);
+		let out = '';
+		for(const inp of bin_read_frm.keys()) {
+			const ielt = document.getElementById(inp);
+			switch(ielt.getAttribute('pa-type')) {
+				case 'pos':
+					if (/[\s!@#$%^&*()_+=[\]{};':"\|,.<>/?]/.test(bin_read_frm.get(inp))) {
+						out+=' "'+bin_read_frm.get(inp)+'"';
+					} else {
+						out+=' '+bin_read_frm.get(inp);
+					}
+					break;
+				case 'opt':
+					if(bin_read_frm.get(inp) !== '') {
+						if (ielt.hasAttribute('pa-repeat')) {
+							for(const val of bin_read_frm.get(inp).split(`
+`)) {
+								out+=' --'+inp+' "'+val+'"';
+							}
+						} else {
+							out+=' --'+inp+' "'+bin_read_frm.get(inp)+'"';
+						}
+					}
+					break;
+				case 'flag':
+					if(ielt.checked === true) {
+						out+=' --'+inp;
+					} else {
+						out+=' --no-'+inp;
+					}
+					break;
+			}
+		}
+		// document.getElementById('cdr_parse_btn').parentNode.dispatchEvent(new Event('submit'));
+		document.getElementById('cdr_parse_btn').click();
+		out=document.getElementById('cdr_result').innerHTML+out;
+		document.getElementById('cdr_result').innerHTML=out;
+		
+		document.getElementById('bin_read_result').innerHTML=out;
+	}
+document.getElementById('bin_read').addEventListener('submit', function(e) {
+				e.preventDefault();
+				e.target.checkValidity();
+				bin_read_parse(e.target);
+				if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+					&& (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+					&& (window.location.port !== '80' && window.location.port !== '443')) {
+					fetch(window.location.protocol+'//' + window.location.hostname + ':' + window.location.port + '/form', {
+						method: 'POST',
+						body:document.getElementById('cdr_result').innerHTML.replace(/read /g, '')
+					})
+						.then(response => response.text())
+						.then(result => {
+							document.getElementById('bin_read_server_response').innerHTML = result;
+						})
+						.catch(error => {
+							document.getElementById('bin_read_server_response').innerHTML = error;
+						});
+				}
+			});
+</script></div><div class="d-none subcmd-container-target" id="target_server_container"><form id="bin_server">
+<h2>server form</h2>
+<div class="form-group">
+	<label for="port" class="form-label">port</label>
+	<span class="input-help">tcp port</span>
+	<input class="form-control" pa-type="opt" name="port" id="port" type="text" value="42069" />
+</div><div class="form-group">
+	<label for="response-file" class="form-label">response-file</label>
+	<span class="input-help">which file to use for the response FIFO, mktemp if empty</span>
+	<input class="form-control" pa-type="opt" name="response-file" id="response-file" type="text" />
+</div><div class="form-group">
+	<label for="index-file" class="form-label">index-file</label>
+	<span class="input-help">index file</span>
+	<input class="form-control" pa-type="opt" name="index-file" id="index-file" type="text" value="index.html" />
+</div><div class="form-group">
+	<label for="form-file" class="form-label">form-file</label>
+	<span class="input-help">html form file</span>
+	<input class="form-control" pa-type="opt" name="form-file" id="form-file" type="text" value="form.html" />
+</div><div class="form-group">
+	<label for="form-url" class="form-label">form-url</label>
+	<span class="input-help">url to view form</span>
+	<input class="form-control" pa-type="opt" name="form-url" id="form-url" type="text" value="form" />
+</div><div class="form-group">
+	<label for="submit-url" class="form-label">submit-url</label>
+	<span class="input-help">form submit url</span>
+	<input class="form-control" pa-type="opt" name="submit-url" id="submit-url" type="text" value="form" />
+</div><button id="bin_server_parse_btn">Parse</button>
+	<pre id="bin_server_result" contenteditable=true ></pre>
+	<pre id="bin_server_server_response"></pre>
+</form>
+<script type="text/javascript">
+	function bin_server_parse(__form) { 
+		let bin_server_frm = new FormData(__form);
+		let out = '';
+		for(const inp of bin_server_frm.keys()) {
+			const ielt = document.getElementById(inp);
+			switch(ielt.getAttribute('pa-type')) {
+				case 'pos':
+					if (/[\s!@#$%^&*()_+=[\]{};':"\|,.<>/?]/.test(bin_server_frm.get(inp))) {
+						out+=' "'+bin_server_frm.get(inp)+'"';
+					} else {
+						out+=' '+bin_server_frm.get(inp);
+					}
+					break;
+				case 'opt':
+					if(bin_server_frm.get(inp) !== '') {
+						if (ielt.hasAttribute('pa-repeat')) {
+							for(const val of bin_server_frm.get(inp).split(`
+`)) {
+								out+=' --'+inp+' "'+val+'"';
+							}
+						} else {
+							out+=' --'+inp+' "'+bin_server_frm.get(inp)+'"';
+						}
+					}
+					break;
+				case 'flag':
+					if(ielt.checked === true) {
+						out+=' --'+inp;
+					} else {
+						out+=' --no-'+inp;
+					}
+					break;
+			}
+		}
+		// document.getElementById('cdr_parse_btn').parentNode.dispatchEvent(new Event('submit'));
+		document.getElementById('cdr_parse_btn').click();
+		out=document.getElementById('cdr_result').innerHTML+out;
+		document.getElementById('cdr_result').innerHTML=out;
+		
+		document.getElementById('bin_server_result').innerHTML=out;
+	}
+document.getElementById('bin_server').addEventListener('submit', function(e) {
+				e.preventDefault();
+				e.target.checkValidity();
+				bin_server_parse(e.target);
+				if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+					&& (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+					&& (window.location.port !== '80' && window.location.port !== '443')) {
+					fetch(window.location.protocol+'//' + window.location.hostname + ':' + window.location.port + '/form', {
+						method: 'POST',
+						body:document.getElementById('cdr_result').innerHTML.replace(/server /g, '')
+					})
+						.then(response => response.text())
+						.then(result => {
+							document.getElementById('bin_server_server_response').innerHTML = result;
+						})
+						.catch(error => {
+							document.getElementById('bin_server_server_response').innerHTML = error;
+						});
+				}
+			});
+</script></div>
+	<script>
+	document.getElementById("target").addEventListener("change", function() {
+		var val = this.value;
+		document.querySelectorAll(".subcmd-container-target").forEach(function(el) {
+			el.classList.add("d-none");
+		});
+		var subcmd = document.getElementById("target_"+val+"_container").classList.remove("d-none");
+	});
+	</script>
+</div>
+</div>
+<script type="text/javascript">
+	function cdr_parse(__form) { 
+		let cdr_frm = new FormData(__form);
+		let out = './cdr';
+		for(const inp of cdr_frm.keys()) {
+			const ielt = document.getElementById(inp);
+			switch(ielt.getAttribute('pa-type')) {
+				case 'pos':
+					if (/[\s!@#$%^&*()_+=[\]{};':"\|,.<>/?]/.test(cdr_frm.get(inp))) {
+						out+=' "'+cdr_frm.get(inp)+'"';
+					} else {
+						out+=' '+cdr_frm.get(inp);
+					}
+					break;
+				case 'opt':
+					if(cdr_frm.get(inp) !== '') {
+						if (ielt.hasAttribute('pa-repeat')) {
+							for(const val of cdr_frm.get(inp).split(`
+`)) {
+								out+=' --'+inp+' "'+val+'"';
+							}
+						} else {
+							out+=' --'+inp+' "'+cdr_frm.get(inp)+'"';
+						}
+					}
+					break;
+				case 'flag':
+					if(ielt.checked === true) {
+						out+=' --'+inp;
+					} else {
+						out+=' --no-'+inp;
+					}
+					break;
+			}
+		}
+		document.getElementById('cdr_result').innerHTML=out;
+	}
+document.getElementById('cdr').addEventListener('submit', function(e) {
+				e.preventDefault();
+				e.target.checkValidity();
+				cdr_parse(e.target);
+				if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+					&& (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+					&& (window.location.port !== '80' && window.location.port !== '443')) {
+					fetch(window.location.protocol+'//' + window.location.hostname + ':' + window.location.port + '/form', {
+						method: 'POST',
+						body:document.getElementById('_result').innerHTML.replace(/./cdr /g, '')
+					})
+						.then(response => response.text())
+						.then(result => {
+							document.getElementById('cdr_server_response').innerHTML = result;
+						})
+						.catch(error => {
+							document.getElementById('cdr_server_response').innerHTML = error;
+						});
+				}
+			});
 </script>

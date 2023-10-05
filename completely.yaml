@@ -2,6 +2,9 @@ cdr:
 - record
 - init
 - new-day
+- archive
+- read
+- server
 cdr record:
 - --loc
 - --localisation
@@ -26,4 +29,25 @@ cdr init:
 cdr new-day:
 - --config
 - --context
-
+cdr archive:
+- --config
+- --path
+- --file
+- --directory
+- --no-directory
+- --override
+- --no-override
+cdr read:
+- --config
+- --filter
+- -f
+- --from
+- --to
+- --date
+cdr server:
+- --port
+- --response-file
+- --index-file
+- --form-file
+- --form-url
+- --submit-url

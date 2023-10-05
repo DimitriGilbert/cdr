@@ -4,7 +4,7 @@
 # @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
 # @parseArger-leftovers leftovers
 # @parseArger-declarations
-# @parseArger pos target "cdr subcommand" --subcommand-directory "bin" --subcommand-run --subcommand-use-leftovers --subcommand --one-of "record" --one-of "init" --one-of "new-day" --one-of "archive" --one-of "read"
+# @parseArger pos target "cdr subcommand" --subcommand-directory "bin" --subcommand-run --subcommand-use-leftovers --subcommand --one-of "record" --one-of "init" --one-of "new-day" --one-of "archive" --one-of "read" --one-of "server"
 # @parseArger-declarations-end
 
 # @parseArger-utils
@@ -33,7 +33,7 @@ begins_with_short_option()
 _positionals=();
 _optional_positionals=();
 _arg_target="";
-_one_of_arg_target=("record" "init" "new-day" "archive" "read" "record" );
+_one_of_arg_target=("record" "init" "new-day" "archive" "read" "read" "record" "server" );
 _arg_subcommand_arg="_arg_target";
 __subcommand=();
 # OPTIONALS ARGUMENTS
@@ -58,7 +58,7 @@ print_help()
 	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
 		_helpHasBeenPrinted=0;
 		echo -e "Chronic Desease Recorder:"
-	echo -e "	target: cdr subcommand [one of 'record' 'init' 'new-day' 'archive' 'read' 'record']"
+	echo -e "	target: cdr subcommand [one of 'record' 'init' 'new-day' 'archive' 'read' 'read' 'record' 'server']"
 	echo -e "Usage :
 	$0 <target>";
 	fi
