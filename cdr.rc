@@ -1,0 +1,3 @@
+
+alias cdr="${CDR_DIR}/cdr";
+source "${CDR_DIR}/completely.bash"

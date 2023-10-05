@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- BOOTSTRAP -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <!-- bootswatch theme -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/5.3.2/solar/bootstrap.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <title>Chronic Disease Recorder</title>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h1>Chronic Disease Recorder</h1><div class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+          <nav class="nav nav-tabs">
+            <a
+              href="#"
+              class="nav-link"
+              id="nav-about"
+              navTo="about"
+              >About</a
+            >
+            <a href="#" class="nav-link active" id="nav-record" navTo="record"
+              >Add</a
+            >
+            <a href="#" class="nav-link" id="nav-install" navTo="install"
+              >Install</a
+            >
+            <a id="nav-github" href="https://github.com/DimitriGilbert/cdr" target="_blank">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="40" height="40">
+                <path
+                  d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z">
+                </path>
+              </svg>
+            </a>
+          </nav>
+        </div>
+        <div id="cdr-about" class="cdr-tab">
+          <p>
+            This is a simple web application that allows you to record your
+            chronic disease related (or not) symptoms.
+          </p>
+        </div>
+        <div class="cdr-tab" id="cdr-record">
+          <form id="cdr-record-frm">
+            <div class="row">
+              <div class="col-6">
+                <label for="cdr-form-what" class="form-label">What</label>
+                <input type="text"
+                  class="form-control" name="cdr-form-what" id="cdr-form-what" aria-describedby="cdr-form-what-help" placeholder="pain" list="what-list">
+                <datalist id="what-list">
+                  <option value="pain">
+                  <option value="fatigue">
+                  <option value="nausea">
+                  <option value="headache">
+                  <option value="dizziness">
+                  <option value="diarrhea">
+                  <option value="constipation">
+                  <option value="depression">
+                  <option value="anxiety">
+                  <option value="insomnia">
+                  <option value="crepitus">
+                  <option value="spasticity">
+                  <option value="fasciculation">
+                  <option value="tremor">
+                  <option value="blurred vision">
+                  <option value="dry mouth">
+                  <option value="itching">
+                  <option value="rash">
+                  <option value="swelling">
+                  <option value="shortness of breath">
+                  <option value="chest pain">
+                  <option value="palpitations">
+                  <option value="cough">
+                  <option value="wheezing">
+                  <option value="sweating">
+                  <option value="fever">
+                  <option value="chills">
+                  <option value="weight loss">
+                  <option value="weight gain">
+                  <option value="loss of appetite">
+                  <option value="thirst">
+                  <option value="frequent urination">
+                  <option value="urinary incontinence">
+                  <option value="urinary retention">
+                  <option value="sexual dysfunction">
+                  <option value="muscle weakness">
+                  <option value="muscle cramps">
+                  <option value="muscle spasms">
+                  <option value="joint pain">
+                  <option value="joint swelling">
+                  <option value="joint stiffness">
+                  <option value="joint redness">
+                  <option value="joint warmth">
+                  <option value="joint deformity">
+                  <option value="joint instability">
+                  <option value="joint locking">
+                  <option value="joint popping">
+                  <option value="joint clicking">
+                </datalist>
+                <small id="cdr-form-what-help" class="form-text text-muted">What do you want to record</small>
+              </div>
+              <div class="col-6">
+                <label for="cdr-form-intensity" class="form-label">Intensity</label>
+                <input type="range" min="1" max="10" class="form-range" id="cdr-form-intensity"
+                  class="form-control" name="cdr-form-intensity" id="cdr-form-intensity" aria-describedby="cdr-form-intensity-help" value="1">
+                <small id="cdr-form-intensity-help" class="form-text text-muted">From 1 to 10</small>
+              </div>
+              <div class="col-6">
+                <label for="cdr-form-loc" class="form-label">Localization <button type="button" id="add-loc-btn" class="btn btn-sm btn-primary"><span class="badge bg-primary">+</span></button></label>
+                <input type="text"
+                  class="form-control" name="cdr-form-loc[]" id="cdr-form-loc_" aria-describedby="cdr-form-loc-help" placeholder="knee">
+                <small id="cdr-form-loc-help" class="form-text text-muted">Where does it happen</small>
+              </div>
+              <div class="col-6">
+                <label for="cdr-form-date" class="form-label">Date</label>
+                <input type="datetime-local"
+                  class="form-control" name="cdr-form-date" id="cdr-form-date" aria-describedby="cdr-form-date-help">
+                <small id="cdr-form-date-help" class="form-text text-muted">When did it happen</small>
+              </div>
+              <div class="col-12" id="more-ctx-chk">
+                <label for="cdr-form-more-context" class="form-label">More context</label>
+                <textarea class="form-control" name="cdr-form-more-context" id="cdr-form-more-context"></textarea>
+              </div>
+              <div class="col-12">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="cdr-set-as-preset">
+                  <label class="form-check-label" for="cdr-set-as-preset">
+                    Set as preset
+                  </label>
+                </div>
+              </div>
+              <div class="col-12">
+                <button type="button" class="btn btn-secondary" id="add-data-btn">Add data</button>
+                <button class="btn btn-primary">Record</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="cdr-tab" id="read">
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- bootstrap -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    crossorigin="anonymous"
+  ></script>
+  <script id="common.js">
+    function navTo(where) {
+      document.querySelectorAll(".nav-link").forEach((el) => {
+        el.classList.remove("active");
+      });
+      document.querySelector("#nav-" + where).classList.add("active");
+      document.querySelectorAll(".cdr-tab").forEach((el) => {
+        el.classList.add("d-none");
+      });
+      document
+        .querySelector("#cdr-" + where)
+        .classList.remove("d-none");
+    }
+    function addLoc() {
+      const n = document.getElementById("cdr-form-loc_").cloneNode(true);
+      n.getAttributeNode("id").value = "cdr-form-loc_" + document.querySelectorAll("[name='cdr-form-loc[]']").length;
+      const hd = document.getElementById("cdr-form-loc-help");
+      hd.parentElement.insertBefore(n, hd);
+    }
+
+
+    const dtfCont = document.createElement("div");
+    dtfCont.classList.add("col-6");
+    dtfCont.innerHTML = "Custom data"
+
+    dtfDelBtn = document.createElement("button");
+    dtfDelBtn.classList.add("btn", "btn-sm", "btn-danger");
+    dtfDelBtn.setAttribute("type", "button");
+    dtfDelBtn.innerHTML = "X";
+    dtfCont.appendChild(dtfDelBtn);
+    
+    dtfNameInput = document.createElement("input");
+    dtfNameInput.classList.add("form-control");
+    dtfNameInput.setAttribute("type", "text");
+    dtfNameInput.setAttribute("placeholder", "Data name");
+    dtfNameInput.setAttribute("name", "custom-data-name[]");
+    dtfCont.appendChild(dtfNameInput);
+    
+    dtfValInput = document.createElement("input");
+    dtfValInput.classList.add("form-control");
+    dtfValInput.setAttribute("type", "text");
+    dtfValInput.setAttribute("placeholder", "Data value");
+    dtfValInput.setAttribute("name", "custom-data-value[]");
+    dtfCont.appendChild(dtfValInput);
+
+    function addData() {
+      // const n = dtfCont.cloneNode();
+      const c = document.getElementById("cdr-record-frm").firstElementChild.insertBefore(
+        dtfCont.cloneNode(true),
+        document.getElementById("more-ctx-chk")
+      );
+      c.firstElementChild.addEventListener("click", removeData);
+    }
+
+    function removeData(evt) {
+      const le = evt.target.parentElement;
+      console.log(le);
+      le.parentElement.removeChild(le);
+    }
+  </script>
+  <script id="init.js">
+    // onload event for the page
+    window.addEventListener("load", () => {
+      // initializing navigation
+      document
+        .querySelectorAll("[navTo]")
+        .forEach((el) => {
+          el.addEventListener("click", evt => {
+            navTo(evt.target.getAttribute("navTo"));
+          })
+        });
+      document.getElementById("add-loc-btn").addEventListener("click", addLoc);
+      document.getElementById("add-data-btn").addEventListener("click", addData);
+      document.getElementById("cdr-record-frm").addEventListener("submit", evt => {
+        evt.preventDefault();
+        const frmData = new FormData(document.getElementById("cdr-record-frm"));
+        let url = "http://localhost:42069/api/record";
+        let urlData = [];
+        
+        if (frmData.has("cdr-form-what") && frmData.get("cdr-form-what") != "") {
+          url += "/"+encodeURIComponent(frmData.get("cdr-form-what"));
+        }
+
+        if (frmData.has("cdr-form-intensity") && frmData.get("cdr-form-intensity") != "") {
+          urlData.push("intensity=" + frmData.get("cdr-form-intensity"));
+        }
+        if (frmData.has("cdr-form-loc[]") && frmData.get("cdr-form-loc[]") != "") {
+          frmData.getAll("cdr-form-loc[]").forEach(el => {
+            urlData.push("loc=" + encodeURIComponent(el));
+          });
+        }
+        if (frmData.has("cdr-form-date") && frmData.get("cdr-form-date") != "") {
+          urlData.push("date=" + encodeURIComponent(frmData.get("cdr-form-date")));
+        }
+        if (frmData.has("cdr-form-more-context") && frmData.get("cdr-form-more-context") != "") {
+            urlData.push("moreContext=" + encodeURIComponent(frmData.get("cdr-form-more-context")));
+        }
+
+        if (frmData.has("custom-data-name[]") && frmData.get("custom-data-name[]") != "") {
+          const dtVl=frmData.getAll("custom-data-value[]");
+          frmData.getAll("custom-data-name[]").forEach((el, i) => {
+            urlData.push(encodeURIComponent(el) + "=" + encodeURIComponent(dtVl[i]));
+          });
+        }
+        if (urlData.length > 0) {
+          url += "?" + urlData.join("&");
+        }
+
+        fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "text/plain",
+          },
+        })
+          .then(response => response.text())
+          // TODO: add to presets, clear form, fetch api/read
+          .then(result => console.log(result))
+          .catch(error => console.log('error', error));
+      });
+    });
+  </script>
+</body>
+</html>

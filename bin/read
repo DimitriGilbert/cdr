@@ -1,0 +1,315 @@
+#!/bin/bash
+# @parseArger-begin
+# @parseArger-help "read last file to stdout" --option "help" --short-option "h"
+# @parseArger-verbose --option "verbose" --level "0" --quiet-option "quiet"
+# @parseArger-leftovers leftovers
+# @parseArger-declarations
+# @parseArger opt config "parent config folder, user .config by default"
+# @parseArger opt filter "yq expression to filter data" --short f --repeat
+# @parseArger opt from "date from which to start"
+# @parseArger opt to "date to go to, last by default"
+# @parseArger opt date "read a specific date"
+# @parseArger-declarations-end
+
+# @parseArger-utils
+_helpHasBeenPrinted=1;
+_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)";
+# @parseArger-utils-end
+
+# @parseArger-parsing
+die()
+{
+	local _ret="${2:-1}"
+	test "${_PRINT_HELP:-no}" = yes && print_help >&2
+	log "$1" -3 >&2
+	exit "${_ret}"
+}
+
+
+begins_with_short_option()
+{
+	local first_option all_short_options=''
+	first_option="${1:0:1}"
+	test "$all_short_options" = "${all_short_options/$first_option/}" && return 1 || return 0
+}
+
+# POSITIONALS ARGUMENTS
+_positionals=();
+_optional_positionals=();
+# OPTIONALS ARGUMENTS
+_arg_config=
+_arg_filter=()
+_arg_from=
+_arg_to=
+_arg_date=
+# FLAGS
+# LEFTOVERS
+_arg_leftovers=()
+_verbose_level="0";
+
+
+
+print_help()
+{
+	_triggerSCHelp=1;
+
+	if [[ "$_helpHasBeenPrinted" == "1" ]]; then
+		_helpHasBeenPrinted=0;
+		echo -e "read last file to stdout:"
+	echo -e "	--config <config>: parent config folder, user .config by default"
+	echo -e "	-f, --filter <filter>: yq expression to filter data, repeatable"
+	echo -e "	--from <from>: date from which to start"
+	echo -e "	--to <to>: date to go to, last by default"
+	echo -e "	--date <date>: read a specific date"
+	echo -e "Usage :
+	$0 [--config <value>] [--filter <value>] [--from <value>] [--to <value>] [--date <value>]";
+	fi
+
+}
+
+log() {
+	local _arg_msg="${1}";
+	local _arg_level="${2:-"0"}";
+	if [ "${_arg_level}" -le "${_verbose_level}" ]; then
+		case "$_arg_level" in
+			-3)
+				_arg_COLOR="\033[0;31m";
+				;;
+			-2)
+				_arg_COLOR="\033[0;33m";
+				;;
+			-1)
+				_arg_COLOR="\033[1;33m";
+				;;
+			1)
+				_arg_COLOR="\033[0;32m";
+				;;
+			2)
+				_arg_COLOR="\033[1;36m";
+				;;
+			3)
+				_arg_COLOR="\033[0;36m";
+				;;
+			*)
+				_arg_COLOR="\033[0m";
+				;;
+		esac
+		echo -e "${_arg_COLOR}${_arg_msg}\033[0m";
+	fi
+}
+
+parse_commandline()
+{
+	_positionals_count=0
+	while test $# -gt 0
+	do
+		_key="$1"
+		case "$_key" in
+			--config)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_config="$2"
+				shift
+				;;
+			--config=*)
+				_arg_config="${_key##--config=}"
+				;;
+			
+			-f|--filter)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_filter+=("$2")
+				shift
+				;;
+			--filter=*)
+				_arg_filter+=("${_key##--filter=}")
+				;;
+			-f*)
+				_arg_filter+=("${_key##-f}")
+				;;
+			
+			--from)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_from="$2"
+				shift
+				;;
+			--from=*)
+				_arg_from="${_key##--from=}"
+				;;
+			
+			--to)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_to="$2"
+				shift
+				;;
+			--to=*)
+				_arg_to="${_key##--to=}"
+				;;
+			
+			--date)
+				test $# -lt 2 && die "Missing value for the option: '$_key'" 1
+				_arg_date="$2"
+				shift
+				;;
+			--date=*)
+				_arg_date="${_key##--date=}"
+				;;
+			
+			-h|--help)
+				print_help;
+				exit 0;
+				;;
+			-h*)
+				print_help;
+				exit 0;
+				;;
+			-v|--version)
+				print_version;
+				exit 0;
+				;;
+			-v*)
+				print_version;
+				exit 0;
+				;;
+			--verbose)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level + 1))";
+					else
+						_verbose_level="$2";
+						shift;
+					fi
+					;;
+				--quiet)
+					if [ $# -lt 2 ];then
+						_verbose_level="$((_verbose_level - 1))";
+					else
+						_verbose_level="-$2";
+						shift;
+					fi
+					;;
+				
+				*)
+				_last_positional="$1"
+				_positionals+=("$_last_positional")
+				_positionals_count=$((_positionals_count + 1))
+				;;
+		esac
+		shift
+	done
+}
+
+
+handle_passed_args_count()
+{
+	local _required_args_string=""
+	if [ "${_positionals_count}" -lt 0 ] && [ "$_helpHasBeenPrinted" == "1" ];then
+		_PRINT_HELP=yes die "FATAL ERROR: Not enough positional arguments - we require at least 0 (namely: $_required_args_string), but got only ${_positionals_count}.
+	${_positionals[*]}" 1;
+	fi
+}
+
+
+assign_positional_args()
+{
+	local _positional_name _shift_for=$1;
+	_positional_names="";
+	_leftovers_count=$((${#_positionals[@]} - 0))
+	for ((ii = 0; ii < _leftovers_count; ii++));do
+		_positional_names="$_positional_names _arg_leftovers[$((ii + 0))]";
+	done
+
+	shift "$_shift_for"
+	for _positional_name in ${_positional_names};do
+		test $# -gt 0 || break;
+		if ! [[ "$_positional_name" =~ "_arg_leftovers" ]];then
+			eval "if [ \"\$_one_of${_positional_name}\" != \"\" ];then [[ \"\${_one_of${_positional_name}[*]}\" =~ \"\${1}\" ]];fi" || die "${_positional_name} must be one of: $(eval "echo \"\${_one_of${_positional_name}[*]}\"")" 1;
+		fi
+		eval "$_positional_name=\${1}" || die "Error during argument parsing, possibly an ParseArger bug." 1;
+		shift;
+	done
+}
+
+print_debug()
+{
+	print_help
+	# shellcheck disable=SC2145
+	echo "DEBUG: $0 $@";
+	
+	echo -e "\tconfig: ${_arg_config}";
+	echo -e "\tfilter: ${_arg_filter[*]}";
+	echo -e "\tfrom: ${_arg_from}";
+	echo -e "\tto: ${_arg_to}";
+	echo -e "\tdate: ${_arg_date}";
+	echo -e "\tleftovers: ${_arg_leftovers[*]}";
+
+}
+
+print_version()
+{
+	echo "";
+}
+
+on_interrupt() {
+	die Process aborted! 130;
+}
+
+parse_commandline "$@";
+handle_passed_args_count;
+assign_positional_args 1 "${_positionals[@]}";
+trap on_interrupt INT;
+
+
+
+# @parseArger-parsing-end
+# print_debug "$@"
+# @parseArger-end
+
+if [ "$_arg_config" == "" ]; then
+	_arg_config="$HOME/.config";
+fi
+
+_CDR_CDIR="$_arg_config/CDR";
+_CDR_RDIR="$_CDR_CDIR/records";
+
+_rData="";
+if [ "$_arg_to" == "" ]; then
+	_arg_to="$(date +%Y-%m-%d)";
+fi
+if [ "$_arg_from" != "" ]; then
+	# TODO
+	log "from $_arg_from to $_arg_to" 2;
+	if [ "$(date -d "$_arg_from" +%s)" -gt "$(date -d "$_arg_to" +%s)"  ]; then
+		die "from is after to";
+	fi
+	
+	frm="$(date -d "$_arg_from" +%s)";
+	trm="$(date -d "$_arg_to" +%s)";
+	dcount=$(((trm - frm) / 86400));
+	# curr_date="$_arg_from";
+	
+	for (( i=0; i<="$dcount"; i++ ));do
+		# if [[ "$curr_date" -gt "$_arg_to" ]]; then
+		# 		break;
+		# fi
+		curr_date=$(date -d "$_arg_from + $i day" +%Y-%m-%d);
+		log "reading $curr_date" -2;
+		if [ -f "$_CDR_RDIR/$curr_date" ]; then
+			# _rData="$(echo -e "$_rData" | yq m -oy - "$_CDR_RDIR/$curr_date")\n";
+			_rData="$(echo -e "$_rData" |  yq ea '.[:]' - "$_CDR_RDIR/$curr_date")\n"
+		fi
+	done
+else
+	if [ "$_arg_date" == "" ]; then
+		_arg_date="$_arg_to";
+	fi
+	if [ ! -f "$_CDR_RDIR/$_arg_date" ]; then
+		die "No file for date $_arg_date";
+	fi
+	_rData+="$(cat "$_CDR_RDIR/$_arg_date")";
+fi
+
+if [ "${#_arg_filter[@]}" -gt 0 ]; then
+	for _filter in "${_arg_filter[@]}"; do
+		_rData="$(echo "$_rData" | yq -oy "$_filter")";
+	done
+fi
+
+echo -e "$_rData";

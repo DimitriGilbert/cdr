@@ -1,0 +1,29 @@
+cdr:
+- record
+- init
+- new-day
+cdr record:
+- --loc
+- --localisation
+- --localization
+- --location
+- --where
+- -l
+- --intensity
+- --level
+- -i
+- --more-context
+- --info
+- --information
+- --description
+- -c
+- --date
+- --when
+- -d
+- --config
+cdr init:
+- --config
+cdr new-day:
+- --config
+- --context
+

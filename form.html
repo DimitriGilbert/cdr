@@ -1,0 +1,152 @@
+<form id="cdr">
+<h2>cdr form</h2>
+<div class="form-group">
+	<label for="target" class="form-label">target</label>
+	<span class="input-help">cdr subcommand</span>
+	<select pa-type="pos" name="target" id="target" required class="form-select">
+
+		<option value="record">record</option>
+	</select>
+</div><button id="cdr_parse_btn">Parse</button>
+	<pre id="cdr_result" contenteditable=true ></pre>
+	<pre id="cdr_server_response"></pre>
+</form><div id="_subcommands">
+	<h3>Subcommand forms</h3>
+<div class="d-none subcmd-container-target" id="target_record_container"><form id="bin_record">
+<h2>record form</h2>
+<button id="bin_record_parse_btn">Parse</button>
+	<pre id="bin_record_result" contenteditable=true ></pre>
+	<pre id="bin_record_server_response"></pre>
+</form>
+<script type="text/javascript">
+	function bin_record_parse(__form) { 
+		let bin_record_frm = new FormData(__form);
+		let out = '';
+		for(const inp of bin_record_frm.keys()) {
+			const ielt = document.getElementById(inp);
+			switch(ielt.getAttribute('pa-type')) {
+				case 'pos':
+					if (/[\s!@#$%^&*()_+=[\]{};':"\|,.<>/?]/.test(bin_record_frm.get(inp))) {
+						out+=' "'+bin_record_frm.get(inp)+'"';
+					} else {
+						out+=' '+bin_record_frm.get(inp);
+					}
+					break;
+				case 'opt':
+					if(bin_record_frm.get(inp) !== '') {
+						if (ielt.hasAttribute('pa-repeat')) {
+							for(const val of bin_record_frm.get(inp).split(`
+`)) {
+								out+=' --'+inp+' "'+val+'"';
+							}
+						} else {
+							out+=' --'+inp+' "'+bin_record_frm.get(inp)+'"';
+						}
+					}
+					break;
+				case 'flag':
+					if(ielt.checked === true) {
+						out+=' --'+inp;
+					} else {
+						out+=' --no-'+inp;
+					}
+					break;
+			}
+		}
+		// document.getElementById('cdr_parse_btn').parentNode.dispatchEvent(new Event('submit'));
+		document.getElementById('cdr_parse_btn').click();
+		out=document.getElementById('cdr_result').innerHTML+out;
+		document.getElementById('cdr_result').innerHTML=out;
+		
+		document.getElementById('bin_record_result').innerHTML=out;
+	}
+document.getElementById('bin_record').addEventListener('submit', function(e) {
+				e.preventDefault();
+				e.target.checkValidity();
+				bin_record_parse(e.target);
+				if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+					&& (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+					&& (window.location.port !== '80' && window.location.port !== '443')) {
+					fetch(window.location.protocol+'//' + window.location.hostname + ':' + window.location.port + '/form', {
+						method: 'POST',
+						body:document.getElementById('cdr_result').innerHTML.replace(/record /g, '')
+					})
+						.then(response => response.text())
+						.then(result => {
+							document.getElementById('bin_record_server_response').innerHTML = result;
+						})
+						.catch(error => {
+							document.getElementById('bin_record_server_response').innerHTML = error;
+						});
+				}
+			});
+</script></div>
+	<script>
+	document.getElementById("target").addEventListener("change", function() {
+		var val = this.value;
+		document.querySelectorAll(".subcmd-container-target").forEach(function(el) {
+			el.classList.add("d-none");
+		});
+		var subcmd = document.getElementById("target_"+val+"_container").classList.remove("d-none");
+	});
+	</script>
+</div>
+</div>
+<script type="text/javascript">
+	function cdr_parse(__form) { 
+		let cdr_frm = new FormData(__form);
+		let out = 'cdr';
+		for(const inp of cdr_frm.keys()) {
+			const ielt = document.getElementById(inp);
+			switch(ielt.getAttribute('pa-type')) {
+				case 'pos':
+					if (/[\s!@#$%^&*()_+=[\]{};':"\|,.<>/?]/.test(cdr_frm.get(inp))) {
+						out+=' "'+cdr_frm.get(inp)+'"';
+					} else {
+						out+=' '+cdr_frm.get(inp);
+					}
+					break;
+				case 'opt':
+					if(cdr_frm.get(inp) !== '') {
+						if (ielt.hasAttribute('pa-repeat')) {
+							for(const val of cdr_frm.get(inp).split(`
+`)) {
+								out+=' --'+inp+' "'+val+'"';
+							}
+						} else {
+							out+=' --'+inp+' "'+cdr_frm.get(inp)+'"';
+						}
+					}
+					break;
+				case 'flag':
+					if(ielt.checked === true) {
+						out+=' --'+inp;
+					} else {
+						out+=' --no-'+inp;
+					}
+					break;
+			}
+		}
+		document.getElementById('cdr_result').innerHTML=out;
+	}
+document.getElementById('cdr').addEventListener('submit', function(e) {
+				e.preventDefault();
+				e.target.checkValidity();
+				cdr_parse(e.target);
+				if ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+					&& (window.location.protocol === 'http:' || window.location.protocol === 'https:')
+					&& (window.location.port !== '80' && window.location.port !== '443')) {
+					fetch(window.location.protocol+'//' + window.location.hostname + ':' + window.location.port + '/form', {
+						method: 'POST',
+						body:document.getElementById('_result').innerHTML.replace(/cdr /g, '')
+					})
+						.then(response => response.text())
+						.then(result => {
+							document.getElementById('cdr_server_response').innerHTML = result;
+						})
+						.catch(error => {
+							document.getElementById('cdr_server_response').innerHTML = error;
+						});
+				}
+			});
+</script>
