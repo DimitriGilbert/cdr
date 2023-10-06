@@ -383,18 +383,11 @@ function handle_request () {
 	IFS='&' read -r -a tqsas <<< "${tqsas[1]}"
 	for i in "${tqsas[@]}"; do
 		IFS='=' read -r -a query_string_arg <<< "$i"
-			# __existing="${query_args[${query_string_arg[0]}]}";
-			# log "existing: $__existing __ $(declare -p $__existing | grep ' -a ')" 0;
-			# if [ "$(declare -p __existing | grep ' -a ')" != "" ]; then
-			# 	query_args[${query_string_arg[0]}]=( "${query_args[${query_string_arg[0]}]}" )
-			# fi
-			# query_args[${query_string_arg[0]}]+=("${query_string_arg[1]}")
-			
 		__argname="${query_string_arg[0]}";
 		__argvalue="${query_string_arg[1]}";
 		__existing="${query_args["$__argname"]}";
 		if [ "$__existing" != "" ]; then
-			query_args["$__argname"]+=" :: $__argvalue"
+			query_args["$__argname"]+="~$__argvalue"
 		else
 			query_args["$__argname"]="$__argvalue"
 		fi
@@ -411,15 +404,17 @@ function handle_request () {
 					;;
 				"GET /api/"*)
 					apiCmd=("$_SCRIPT_DIR/../cdr" "${uri_segments[2]}");
-					case "${uri_segments[2]}" in
-						"record")
-							apiCmd+=("${uri_segments[3]}");
-						;;
-						*)
-						;;
-					esac
+					
+					if [ "${#uri_segments[@]}" -gt 3 ]; then
+						for i in "${!uri_segments[@]}"; do
+							if [ "$i" -gt 2 ] && [ "$i" -lt "${#uri_segments[@]}" ]; then
+								apiCmd+=( "${uri_segments[$i]}" );
+							fi
+						done
+					fi
+					
 					for i in "${!query_args[@]}"; do
-						IFS=" :: " read -r -a tmpi <<< "${query_args[$i]}";
+						IFS="~" read -r -a tmpi <<< "${query_args[$i]}";
 						if [ "${#tmpi[@]}" -gt 1 ]; then
 							for _ti in "${tmpi[@]}"; do
 								[ "$_ti" != "" ] && apiCmd+=( "--$(printf '%b' "${i//%/\\x}")" "$(printf '%b' "${_ti//%/\\x}")" );
@@ -429,8 +424,13 @@ function handle_request () {
 						fi
 					done
 					
-					log "${apiCmd[*]}" -1;
-					send200 "$("${apiCmd[@]}")";
+					log "${apiCmd[*]}" 0;
+					__output=$("${apiCmd[@]}" 2>&1);
+					if [ $? -eq 0 ]; then
+						send200 "$__output";
+					else
+						sendResponse "$__output" "plain" "text" 500;
+					fi
 					;;
 				"GET /client/"*)
 					trm="/client/";

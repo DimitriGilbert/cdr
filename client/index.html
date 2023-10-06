@@ -180,6 +180,7 @@
       hd.parentElement.insertBefore(n, hd);
     }
 
+    const offlineData = localStorage.getItem("cdr-offline-data")===null?[]:JSON.parse(localStorage.getItem("cdr-offline-data"));
 
     const dtfCont = document.createElement("div");
     dtfCont.classList.add("col-6");
@@ -212,6 +213,8 @@
         document.getElementById("more-ctx-chk")
       );
       c.firstElementChild.addEventListener("click", removeData);
+      c.setAttribute("id", "cdr-form-data_" + document.querySelectorAll("[name='custom-data-name[]']").length);
+      c.setAttribute("tbd", "true");
     }
 
     function removeData(evt) {
@@ -219,23 +222,42 @@
       console.log(le);
       le.parentElement.removeChild(le);
     }
-  </script>
-  <script id="init.js">
-    // onload event for the page
-    window.addEventListener("load", () => {
-      // initializing navigation
-      document
-        .querySelectorAll("[navTo]")
-        .forEach((el) => {
-          el.addEventListener("click", evt => {
-            navTo(evt.target.getAttribute("navTo"));
-          })
-        });
-      document.getElementById("add-loc-btn").addEventListener("click", addLoc);
-      document.getElementById("add-data-btn").addEventListener("click", addData);
-      document.getElementById("cdr-record-frm").addEventListener("submit", evt => {
-        evt.preventDefault();
-        const frmData = new FormData(document.getElementById("cdr-record-frm"));
+
+    function doRecord(url, urlData) {
+      let ourl = url;
+      return new Promise((resolve, reject) => {
+        if (urlData.length > 0) {
+          url += "?" + urlData.join("&");
+        }
+        fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "text/plain",
+          },
+        })
+          .then(response => {
+            response.text()
+          }).then(result => {
+            resolve(result)
+            if (offlineData.length > 0) {
+              setTimeout(() => {
+                let dt = offlineData.shift();
+                doRecord(dt[0], dt[1]);
+                localStorage.setItem("cdr-offline-data", JSON.stringify(offlineData));
+              }, 250);
+            }
+          }).catch(error => {
+            const date = new Date();
+            const formattedDate = date.toISOString();
+            urlData.push("date=" + formattedDate);
+            offlineData.push([ourl, urlData]);
+            localStorage.setItem("cdr-offline-data", JSON.stringify(offlineData));
+          });
+      })
+    }
+
+    function handleRecordSubmit() {
+      const frmData = new FormData(document.getElementById("cdr-record-frm"));
         let url = "http://localhost:42069/api/record";
         let urlData = [];
         
@@ -264,20 +286,38 @@
             urlData.push(encodeURIComponent(el) + "=" + encodeURIComponent(dtVl[i]));
           });
         }
-        if (urlData.length > 0) {
-          url += "?" + urlData.join("&");
-        }
-
-        fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "text/plain",
-          },
-        })
-          .then(response => response.text())
-          // TODO: add to presets, clear form, fetch api/read
-          .then(result => console.log(result))
-          .catch(error => console.log('error', error));
+        doRecord(url, urlData).then(result => {
+          console.log(result);
+          // TODO: display result, save preset if needed
+          frmData.getAll("cdr-form-loc[]").forEach((el, i) => {
+            if (i >0 ) {
+              let n = document.getElementById("cdr-form-loc_" + i);
+              n.parentElement.removeChild(n);
+            }
+          });
+          document.querySelectorAll("[tbd='true']").forEach(el => {
+            el.parentElement.removeChild(el);
+          });
+          document.getElementById("cdr-record-frm").reset();
+        });
+    }
+  </script>
+  <script id="init.js">
+    // onload event for the page
+    window.addEventListener("load", () => {
+      // initializing navigation
+      document
+        .querySelectorAll("[navTo]")
+        .forEach((el) => {
+          el.addEventListener("click", evt => {
+            navTo(evt.target.getAttribute("navTo"));
+          })
+        });
+      document.getElementById("add-loc-btn").addEventListener("click", addLoc);
+      document.getElementById("add-data-btn").addEventListener("click", addData);
+      document.getElementById("cdr-record-frm").addEventListener("submit", evt => {
+        evt.preventDefault();
+        handleRecordSubmit();
       });
     });
   </script>

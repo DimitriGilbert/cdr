@@ -329,6 +329,7 @@ if [ "$_arg_date" == "" ]; then
 	_file_date="$(date +%Y-%m-%d)";
 else
 	_file_date="$(date +%Y-%m-%d -d "$_arg_date")";
+	_arg_date="$(date +%Y-%m-%d:%H:%M:%S -d "$_arg_date")";
 fi
 
 _CDR_DFILE="$_CDR_RDIR/$_file_date";
