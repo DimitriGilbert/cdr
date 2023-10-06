@@ -1,0 +1,11 @@
+{
+  "lang": "en-us",
+  "name": "Chronic Desease Recorder",
+  "short_name": "cdr",
+  "description": "This is a simple web application that allows you to record your chronic disease related (or not) symptoms.",
+  "start_url": "/",
+  "background_color": "#268bd2",
+  "theme_color": "#268bd2",
+  "orientation": "any",
+  "display": "standalone"
+}
